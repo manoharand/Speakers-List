@@ -1,0 +1,149 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+public class FrequencyStack extends SpeakersList implements ActionListener {
+
+  private ArrayList<Assembly> speakersList = new ArrayList<Assembly>();
+  private ArrayList<Assembly> present = new ArrayList<Assembly>();
+  private ArrayList<Assembly> total = new ArrayList<Assembly>();
+  private JPanel list;
+  private JPanel p;
+  private PrintStream o;
+
+  public FrequencyStack() {
+    super();
+  }
+
+  @Override
+  public void displayGA(ArrayList<Assembly> generalAssembly) {
+    JPanel description = new JPanel();
+    JPanel ad = new JPanel();
+    p = new JPanel(new GridLayout((int)Math.sqrt(generalAssembly.size()) + 1, (int)Math.sqrt(generalAssembly.size())));
+    for (int i = 0; i < generalAssembly.size(); i++) {
+      JButton temp = new JButton(generalAssembly.get(i).getName());
+      temp.setBackground(Color.white);
+      temp.addActionListener(this);
+      p.add(temp);
+    }
+    description.add(new JPanel().add(new JTextArea("Click on representatives you wish to add to the Speaker's List.", 0, 0)));
+    description.setSize((int)(Math.sqrt(generalAssembly.size()) + 1) * 500, 50);
+    JButton adjourn = new JButton("Adjourn");
+    adjourn.addActionListener(this);
+    ad.add(adjourn);
+    ad.setSize((int)(Math.sqrt(generalAssembly.size()) + 1) * 500, 50);
+    this.add(description, "North");
+    this.add(p, "Center");
+    this.add(ad, "South");
+    this.pack();
+    this.setVisible(true);
+  }
+
+  public void reorder() {
+    Collections.sort(speakersList, new Comparator<Assembly>() {
+      @Override
+      public int compare(Assembly a1, Assembly a2) {
+        return a1.getTalked() - a2.getTalked();
+      }
+    });
+  }
+
+  public void displaySpeakersList() {
+    try {
+      this.remove(list);
+    }
+    catch (NullPointerException e) {}
+    list = new JPanel(new GridLayout(speakersList.size(), 1));
+    for (Assembly x : speakersList) {
+      JButton temp = new JButton(x.getName());
+      temp.addActionListener(this);
+      temp.setBackground(Color.GRAY);
+      list.add(temp);
+    }
+    this.add(list, "East");
+    this.pack();
+    this.setVisible(true);
+  }
+
+  public void remove(JButton b) {
+    for (int i = 0; i < speakersList.size(); i++) {
+      if (b.getText().equals(speakersList.get(i).getName()))
+        speakersList.remove(i);
+    }
+    this.reorder();
+    this.displaySpeakersList();
+  }
+
+  public void setPresent() {
+    ArrayList<Assembly> temp = this.readData("present.txt");
+    for (int i = 0; i < temp.size(); i++) {
+      this.present.add(temp.get(i));
+    }
+  }
+
+  public ArrayList<Assembly> getPresent() {
+    return this.present;
+  }
+
+  public void outputFile() {
+    ArrayList<Assembly> temp = super.readData("GA.txt");
+    for (int i = 0; i < temp.size(); i++) {
+      this.total.add(temp.get(i));
+    }
+    for (Assembly x : total) {
+      for (Assembly y : this.getPresent()) {
+        if (x.getName().equals(y.getName()))
+          x.setTalked(y.getTalked());
+      }
+    }
+  }
+
+  public void createFile() {
+    try {
+      o = new PrintStream(new File("GA.txt"));
+    }
+    catch (FileNotFoundException e) {
+      System.out.println("FileNotFoundException");
+    }
+  }
+
+  public void writeToFile() {
+    System.setOut(o);
+    for (Assembly x : total) {
+      System.out.println(x.getName().split(" ")[1] + " " + x.getName().split(",")[0] + " " + x.getTalked());
+    }
+    System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+  }
+
+  @Override
+  public void actionPerformed(ActionEvent e) {
+  	if (((JButton)e.getSource()).getText().equals("Adjourn")) {
+  		this.setVisible(false);
+  		this.createFile();
+  		this.writeToFile();
+  	}
+    else if (((JButton)e.getSource()).getBackground() == Color.white) {
+      for (Assembly x : this.getPresent()) {
+        if (x.getName().equals(((JButton)e.getSource()).getText())) {
+          x.incrementTalked();
+          speakersList.add(x);
+          this.reorder();
+          this.displaySpeakersList();
+        }
+      }
+    }
+    else {
+      this.remove((JButton)e.getSource());
+      ((JButton)e.getSource()).setBackground(Color.white);
+    }
+  }
+
+  public static void main(String[] args) {
+    FrequencyStack f = new FrequencyStack();
+    f.setPresent();
+    f.displayGA(f.getPresent());
+  }
+
+}

@@ -10,11 +10,8 @@ import java.util.*;
 	*/
 public class FrequencyStack extends SpeakersList implements ActionListener {
 
-	/** The speaker's list. */
   private ArrayList<Assembly> speakersList = new ArrayList<Assembly>();
-	/** All present representatives. */
   private ArrayList<Assembly> present = new ArrayList<Assembly>();
-	/** All representatives. */
   private ArrayList<Assembly> tot = new ArrayList<Assembly>();
   private JPanel list;
   private JPanel p;

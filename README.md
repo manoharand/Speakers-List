@@ -1,6 +1,6 @@
 # Speaker's List 
 ## Dynamically update a speaker's list based on the frequency at which representatives speak in an assembly over the course 
-of the year. 
+## of the year. 
 ### Created for the Case Western Reserve University Undergraduate Student Government. 
 
 #### Parameters 

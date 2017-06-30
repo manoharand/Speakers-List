@@ -1,3 +1,7 @@
+/** 
+  * The Assembly object to store data about representatives. 
+  * @author Divya Manoharan 
+  */
 public class Assembly {
 
   private String name;
